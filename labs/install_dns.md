@@ -159,7 +159,7 @@ systemctl stop firewalld
 
 - Trỏ DNS của client về DNS server
 
-``vi /etc/sysconfig/network-scripts/ifcfg-eth0``
+``vi /etc/sysconfig/network-scripts/ifcfg-ens160``
 
 sửa dòng `DNS1=10.10.10.173`
 
@@ -193,4 +193,37 @@ Address:	10.10.10.173#53
 174.10.10.10.in-addr.arpa	name = influxdb.com.
 
 ```
+
+- Sử dụng tcpdump để trace DNS:
+
+```
+[root@rabbitmq ~]# tcpdump -i ens160 udp port 53 -w dns.pcap
+tcpdump: listening on ens160, link-type EN10MB (Ethernet), capture size 262144 bytes
+^C4 packets captured
+6 packets received by filter
+0 packets dropped by kernel
+[root@rabbitmq ~]# tcpdump -r dns.pcap 
+reading from file dns.pcap, link-type EN10MB (Ethernet)
+15:23:24.698700 IP influxdb.com.42119 > minhkma.com.domain: 11212+ A? minhkma.com. (29)
+15:23:24.698729 IP influxdb.com.42119 > minhkma.com.domain: 35592+ AAAA? minhkma.com. (29)
+15:23:24.698998 IP minhkma.com.domain > influxdb.com.42119: 35592* 0/1/0 (88)
+15:23:24.699025 IP minhkma.com.domain > influxdb.com.42119: 11212* 1/1/0 A 10.10.10.173 (59)
+```
+
+- client `influxdb.com` sẽ gửi hai bản tin truy vấn địa chỉ ipv4 và ipv6 của tên miền `minhkma.com`
+- server gửi cho client địa chỉ ipv4 và ipv6
+
+
+Sử dụng wireshark để  xem chi tiết từng gói tin hơn
+
+<img src='https://i.imgur.com/WdOt2QE.png'>
+
+- Query:
+    
+    ``minhkma.com: type A, class IN``
+
+- Answers:
+
+    ``minhkma.com: type A, class IN, addr 10.10.10.173``
+
 OKE =))))
