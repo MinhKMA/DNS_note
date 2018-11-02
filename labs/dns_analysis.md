@@ -1,9 +1,11 @@
 ### Khi bạn gõ `https://dantri.com.vn/` vào thanh tìm kiếm trên google chrome
 
+```
 ip client: 10.10.10.174
 doman client: influxdb.com
 ip dns server local: 10.10.10.173
 doman server: minhkma.com
+```
 
 <img src='https://i.imgur.com/YSat6Fr.png'>
 
