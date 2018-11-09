@@ -1,4 +1,7 @@
+
 # Mô hình
+
+***Bài lab hướng dẫn cài đặt DNS master server và DNS slave server***
 
 <img src='https://i.imgur.com/NoFB20I.png'>
 
