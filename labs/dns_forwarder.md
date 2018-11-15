@@ -1,5 +1,6 @@
 # DNS forwarding:
 
+
 Đôi khi chúng ta có sự nhầm lẫn giữa chuyển tiếp DNS và chuyển hướng HTTP hoặc sử dụng bản ghi CNAME để chỉ định bí danh DNS.
 
 ```
@@ -34,11 +35,11 @@ Hãy cùng tìm hiểu quá trình truy vấn đệ qui thông qua ví dụ sau:
 
 Giả sử bạn muốn trình duyệt tìm kiếm `www.example.com` và file `resolve.conf` khai báo như sau:
 
-    ```
-    [root@myvm ~]# cat /etc/resolv.conf
-    nameserver 172.16.200.30
-    nameserver 172.16.200.31
-    ```
+```
+[root@myvm ~]# cat /etc/resolv.conf
+nameserver 172.16.200.30
+nameserver 172.16.200.31
+```
 
 File `resolve.conf` có nghĩa là máy chủ DNS có địa chỉ ip là 172.16.200.30 & 31. Dù bạn sử dụng ứng dụng nào, hệ điều hành sẽ gửi các truy vấn DNS tới hai máy chủ DNS đó.
 
@@ -105,6 +106,12 @@ Hãy cùng xem các bước sau:
 
 Bắt gói tin để kiểm chứng:
 
+- Mô hình:
+
+    + DNS server: 10.10.11.171
+    + DNS client: 10.10.11.172
+    + DNS forwarding: 10.10.11.173
+
 - Kịch bản: Đứng trên máy client query `dantri.com.vn`
 
 - Trên DNS server local:
@@ -127,3 +134,4 @@ tcpdump -i ens160 udp port 53
 10:54:45.312817 IP master.domain > 10.10.11.172.53803: 18118 2/7/12 A 123.30.151.72, A 14.225.10.14 (439)
 ```
 
+- Trên đó chúng ta có thể thấy tất cả các truy vấn DNS server sẽ đẩy hết cho DNS forwarding xử lý. Sau khi DNS forwarding có kết quả sẽ trả lại cho DNS server. 
