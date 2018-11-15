@@ -1,5 +1,11 @@
 # DNS forwarding:
 
+- [1. Khái niệm](#1)
+- [2. Tại sao lại cần có DNS forwarding](#2)
+    + [2.1 Recursive Name Query](#2.1)
+    + [2.2 Iterative Name Query](#2.2)
+    + [2.3 Ưu điểm khi sử dụng DNS forwarding](#2.3)
+- [3. Phân tích gói tin khi có DNS forwarding](#3)
 
 Đôi khi chúng ta có sự nhầm lẫn giữa chuyển tiếp DNS và chuyển hướng HTTP hoặc sử dụng bản ghi CNAME để chỉ định bí danh DNS.
 
@@ -9,12 +15,14 @@ DNS forwarding exclusively refers to the process where specific DNS requests are
 
 Và nó không phải là giải pháp để chuyển hướng miền này sang tên miền khác, mà bạn sẽ sử dụng điều hướng HTTP. Cũng không hữu ích khi tạo bí danh subdomain cho tên miền khác: đó là công việc của bản ghi CNAME
 
+<a name="1"></a>
 ## 1. Khái niệm:
 
 DNS forwarding là quá trình các truy vấn được xử lý bởi một máy chủ được chỉ định thay vì xử lý trên máy chủ DNS server local. Thông thường các máy chủ DNS xử lý phân giải địa chỉ trong mạng lan được cấu hình forward requests tới một máy chủ DNS bên ngoài chuyên để xử lý. 
 
 Khi quyết định cách allocate DNS resources trong một mạng, điều quan trọng là phải tách biệt giữa external và internal DNS. Vì tất các DNS server được cấu hình để xử lý phân giải cả external và internal sẽ làm ảnh hưởng đến hiệu năng và security cho network.
 
+<a name="2"></a>
 ## 2. Tại sao lại cần có DNS forwarding
 
 Trước tiên DNS name queries có hai cách thức: đệ quy và lặp lại. (recursive and iterative)
@@ -26,7 +34,7 @@ Trong lúc phân tích các cách thức truy vấn tôi có đề cập đến 
 - `Authoritative server` : Máy chủ master/slave phụ cho một miền cụ thể đã được cấu hình bởi quản trị viên có thông tin tên máy chủ cho tên miền đó. Thông tin về các máy chủ này được thêm vào các máy chủ gốc khi tên miền được đăng ký.
 
 - `DNS server`: Chính là máy chủ DNS trong local dùng để caching và forwarding kết quả và truy vấn. 
-
+<a name="2.1"></a>
 ### 2.1 Recursive Name Query
 
 Truy vấn đệ qui là một loại truy vấn, trong đó máy chủ DNS nhận truy vấn của bạn sẽ xử lý tất cả các công việc của việc tìm kiếm kết qủa và trả về cho bạn. Trong quá trình xử lý, DNS server có thể truy vấn đến nhiều máy chủ DNS ngoài internet thay bạn để tìm kiếm kết quả.
@@ -79,6 +87,7 @@ Như bạn có thể thấy từ hình trên. Máy chủ DNS của tôi (172.16.
 
 - BIND là một phần mềm được sử dụng rộng rãi và phổ biến nhất. Nó sử dụng một công nghệ gọi là RTT metric(Round Trip Time metric). Sử dụng kỹ thuật này, máy chủ sẽ kiểm tra RTT mỗi máy chủ root và chọn máy chủ có RTT thấp hơn.
 
+<a name="2.2"></a>
 ### 2.2 Iterative Name Query
 
 Trước khi bắt đầu giải thích cho truy vấn lặp lại. Một điều quan trọng cần lưu ý là, tất cả các máy chủ DNS phải hỗ trợ truy vấn lặp lại (không phải đệ quy).
@@ -102,6 +111,14 @@ Hãy cùng xem các bước sau:
 
 <img src="https://i.imgur.com/o5hxioe.png">
 
+<a name="2.3"></a>
+### Tại sao lại cần DNS forwarding
+
+- Thông tin DNS server local có thể được hiển thị trên Internet. Sẽ tốt hơn nếu có sự tách biệt chặt chẽ giữa DNS nội bộ và bên ngoài. Việc phơi bày các DNS server local trên Internet mở sẽ tạo ra lỗ hổng bảo mật và quyền riêng tư tiềm ẩn.
+
+- Không có DNS forwarding, tất cả các máy chủ DNS sẽ truy vấn các giải pháp DNS bên ngoài nếu chúng không có địa chỉ truy vấn được lưu trong bộ nhớ cache. Điều này có thể dẫn đến lưu lượng truy cập mạng quá mức. Bằng cách chỉ định máy chủ DNS như một forwarder, máy chủ đó chịu trách nhiệm cho tất cả các giải pháp DNS bên ngoài và có thể xây dựng bộ nhớ cache của các địa chỉ bên ngoài, giảm nhu cầu truy vấn phân giải đệ quy và giảm lưu lượng truy cập. Đối với các công ty nhỏ hơn với băng thông có sẵn hạn chế, DNS forwarding có thể tăng hiệu quả của network bằng cách giảm mức sử dụng băng thông và cải thiện tốc độ đáp ứng của requests DNS.
+
+<a name="3"></a>
 ## 3. Phân tích gói tin:
 
 Bắt gói tin để kiểm chứng:
